@@ -1,0 +1,863 @@
+{
+  "name": "Shorts Clipper Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -260,
+        -160
+      ],
+      "id": "4a03441c-3e66-4eee-b7d6-fe7332c94508",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU",
+          "mode": "list",
+          "cachedResultName": "Go to File > Make a Copy: N8N Video Sheet Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "PRODUCTION",
+              "lookupValue": "Needs Shorts "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -80,
+        -160
+      ],
+      "id": "404702f3-6709-4f13-91fd-42b8efa72324",
+      "name": "Get Videos",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6F5KjMHe0V0sZC8i",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        40
+      ],
+      "id": "8f7d305a-4907-4bba-a81d-3ae81560487e",
+      "name": "Wait",
+      "webhookId": "0ed35a3c-9445-4a28-a76e-524a15824182"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.klap.app/v2/tasks/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        60,
+        40
+      ],
+      "id": "943c59d7-a219-482a-bcbc-77abc93e7fca",
+      "name": "Check Shorts Status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "J6OhKE58rtWIcco6",
+          "name": "Klap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.klap.app/v2/tasks/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        40
+      ],
+      "id": "ac0b96bc-1d5c-45f8-8d54-a7c94f9d25f5",
+      "name": "Check Shorts Status1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "J6OhKE58rtWIcco6",
+          "name": "Klap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.klap.app/v2/tasks/video-to-shorts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"dimensions\": {\n    \"width\": 1080,\n    \"height\": 1920\n  },\n  \"min_duration\": 15,\n  \"max_duration\": 60,\n  \"target_duration\": 30,\n  \"language\": \"en\",\n  \"target_clip_count\": 2,\n  \"max_clip_count\": 2,\n  \"editing_options\": {\n    \"captions\": true,\n    \"reframe\": true,\n    \"emojis\": true,\n    \"remove_silences\": true,\n    \"intro_title\": false\n  },\n  \"source_video_url\": \"{{ $json['Final Output'] }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        40
+      ],
+      "id": "f66ae8bd-b29a-4b43-8557-66ca7e038e43",
+      "name": "Generate Shorts",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "J6OhKE58rtWIcco6",
+          "name": "Klap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.klap.app/v2/projects/{{ $json.output_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        40
+      ],
+      "id": "5fde317a-9980-4def-ae23-3878e4e47f0b",
+      "name": "Shorts URL",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "J6OhKE58rtWIcco6",
+          "name": "Klap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.klap.app/v2/projects/{{ $json.folder_id }}/{{ $json.id }}/exports",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"preset_id\": \"peanuts\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        280
+      ],
+      "id": "030ef207-20e4-4972-a148-18b11d8cc43c",
+      "name": "Generated Shorts Clip",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "J6OhKE58rtWIcco6",
+          "name": "Klap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.klap.app/v2/projects/{{ $json.folder_id }}/{{ $json.id }}/exports/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        280
+      ],
+      "id": "4f6085a8-91df-47a8-a675-cec81337bed9",
+      "name": "Final Video URL",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "J6OhKE58rtWIcco6",
+          "name": "Klap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU",
+          "mode": "list",
+          "cachedResultName": "Go to File > Make a Copy: N8N Video Sheet Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "IDEA": "={{ $('Get Videos').item.json.IDEA }}",
+            "ID": "=",
+            "PRODUCTION": "Shorts Created",
+            "row_number": "="
+          },
+          "matchingColumns": [
+            "IDEA"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "IDEA",
+              "displayName": "IDEA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CAPTION",
+              "displayName": "CAPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRODUCTION",
+              "displayName": "PRODUCTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Environment",
+              "displayName": "Environment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Output",
+              "displayName": "Final Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        80,
+        280
+      ],
+      "id": "d3426616-2056-4c95-8dd5-eff4cc5ef133",
+      "name": "Change Status in Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6F5KjMHe0V0sZC8i",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU",
+          "mode": "list",
+          "cachedResultName": "Go to File > Make a Copy: N8N Video Sheet Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 720799991,
+          "mode": "list",
+          "cachedResultName": "Shorts Clipper",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jutZAeLGQwSYGoWf6Cxefseu5sT17LO0y-abu3XuHkU/edit#gid=720799991"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TITLE": "={{ $('Shorts URL').item.json.name }}",
+            "ID": "=",
+            "Shorts Link": "={{ $('Final Video URL').item.json.src_url }}",
+            "Caption for YouTube": "={{ $('Shorts URL').item.json.publication_captions.youtube }}",
+            "Caption for Tiktok": "={{ $('Shorts URL').item.json.publication_captions.tiktok }}",
+            "Caption for LinkedIn": "={{ $('Shorts URL').item.json.publication_captions.linkedin }}",
+            "Caption for Instagram": "={{ $('Shorts URL').item.json.publication_captions.instagram }}",
+            "STATUS": "To Be Published"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TITLE",
+              "displayName": "TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Shorts Link",
+              "displayName": "Shorts Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Caption for YouTube",
+              "displayName": "Caption for YouTube",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Caption for Tiktok",
+              "displayName": "Caption for Tiktok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Caption for LinkedIn",
+              "displayName": "Caption for LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Caption for Instagram",
+              "displayName": "Caption for Instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        280
+      ],
+      "id": "99a100c1-e14b-449b-ba0d-defcbeb9afd3",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6F5KjMHe0V0sZC8i",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Stage 1: \nGet the Video URL",
+        "height": 120,
+        "width": 220,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        -160
+      ],
+      "id": "0a41defa-db7d-4661-a3b1-61bfab673d92",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Stage 2: \nGenerate the Video",
+        "height": 120,
+        "width": 220,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        40
+      ],
+      "id": "a7855a08-b69b-4bfc-bc12-aa65da5619ab",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Stage 3: \nAdd Shorts URL To Sheets",
+        "height": 100,
+        "width": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        280
+      ],
+      "id": "6193206d-986c-4c30-88a8-38b1f302f8dd",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-06-11T04:59:48.691+07:00",
+          "Readable date": "June 11th 2025, 4:59:48 am",
+          "Readable time": "4:59:48 am",
+          "Day of week": "Wednesday",
+          "Year": "2025",
+          "Month": "June",
+          "Day of month": "11",
+          "Hour": "04",
+          "Minute": "59",
+          "Second": "48",
+          "Timezone": "Asia/Bangkok (UTC+07:00)"
+        }
+      }
+    ],
+    "Get Videos": [
+      {
+        "json": {
+          "row_number": 2,
+          "ID": 1,
+          "IDEA": "Manus AI Agents",
+          "CAPTION": "",
+          "PRODUCTION": "Needs Shorts ",
+          "Environment": "",
+          "Final Output": "https://www.youtube.com/watch?v=zBCpa-mHuN0"
+        }
+      }
+    ],
+    "Check Shorts Status": [
+      {
+        "json": {
+          "id": "0998BlQPh3ftbpnw",
+          "type": "video-to-shorts",
+          "status": "ready",
+          "error_code": null,
+          "created_at": "2025-06-10T22:26:42.275Z",
+          "output_type": "folder",
+          "output_id": "886mFiyU"
+        }
+      }
+    ],
+    "Check Shorts Status1": [
+      {
+        "json": {
+          "id": "0998BlQPh3ftbpnw",
+          "type": "video-to-shorts",
+          "status": "ready",
+          "error_code": null,
+          "created_at": "2025-06-10T22:26:42.275Z",
+          "output_type": "folder",
+          "output_id": "886mFiyU"
+        }
+      }
+    ],
+    "Generate Shorts": [
+      {
+        "json": {
+          "id": "0998BlQPh3ftbpnw",
+          "type": "video-to-shorts",
+          "status": "processing",
+          "error_code": null,
+          "created_at": "2025-06-10T22:26:42.275Z",
+          "output_type": "folder",
+          "output_id": "886mFiyU"
+        }
+      }
+    ],
+    "Google Sheets": [
+      {
+        "json": {
+          "TITLE": "Creating an Automated YouTube Video Empire with AI",
+          "ID": "",
+          "Shorts Link": "https://storage.googleapis.com/klap-renders/bFxeS9wu0cuuYn2q.mp4",
+          "Caption for YouTube": "Build a YouTube empire with AI! 🤖💥 Ready to go viral? #AIRevolution #YouTubeHacks",
+          "Caption for Tiktok": "Ready to build a YouTube empire with AI? 🤖💥 Discover the secret sauce! #AIRevolution #YouTubeEmpire",
+          "Caption for LinkedIn": "Want a YouTube empire without lifting a finger? 🤖📈 #AI #YouTubeHacks #ViralVideos",
+          "Caption for Instagram": "Want a YouTube empire without lifting a finger? 🤖 Discover AI secrets! #AIRevolution",
+          "STATUS": "To Be Published"
+        }
+      },
+      {
+        "json": {
+          "TITLE": "Comparing AI Video Generation Tools: Manus vs. GenSpark",
+          "ID": "",
+          "Shorts Link": "https://storage.googleapis.com/klap-renders/yGbd33VoPeWIBsIG.mp4",
+          "Caption for YouTube": "Manus vs. GenSpark: Which AI tool wins the video race? 🏁 Comment your fave! #AIShowdown",
+          "Caption for Tiktok": "Manus vs. GenSpark: Which AI tool wins the video race? 🤖💥 #AIBattle #VideoMagic",
+          "Caption for LinkedIn": "Manus or GenSpark? 🤔 Dive into AI video magic! Which tool do you trust? 🔍✨ #AIVideo",
+          "Caption for Instagram": "Manus vs. GenSpark: Which AI wins? 🤔 Dive into the showdown! #AIBattle #VideoMagic",
+          "STATUS": "To Be Published"
+        }
+      }
+    ],
+    "Shorts URL": [
+      {
+        "json": {
+          "id": "jrUyFsEzVoqz",
+          "author_id": "5e1ddeb7-0189-49b3-8329-f665de5e1ca4",
+          "folder_id": "886mFiyU",
+          "name": "Creating an Automated YouTube Video Empire with AI",
+          "created_at": "2025-06-10T22:30:43.113+00:00",
+          "virality_score": 88,
+          "virality_score_explanation": "This video has high virality potential due to its intriguing topic of creating an automated YouTube video empire using AI, which appeals to a wide audience interested in content creation and technology. The mention of a successful example (the viral Yeti videos) adds credibility and curiosity. The promise of a step-by-step guide and the integration of new technology (Veo 3) makes it actionable and shareable, encouraging viewers to engage and spread the content.",
+          "publication_captions": {
+            "tiktok": "Ready to build a YouTube empire with AI? 🤖💥 Discover the secret sauce! #AIRevolution #YouTubeEmpire",
+            "youtube": "Build a YouTube empire with AI! 🤖💥 Ready to go viral? #AIRevolution #YouTubeHacks",
+            "linkedin": "Want a YouTube empire without lifting a finger? 🤖📈 #AI #YouTubeHacks #ViralVideos",
+            "instagram": "Want a YouTube empire without lifting a finger? 🤖 Discover AI secrets! #AIRevolution"
+          },
+          "transcript_text": "Manus AI agents now have Veo 3 built right in and this is your blueprint for creating an automated YouTube video empire that runs itself. I'm walking through the secret behind those viral Yeti videos hitting 2.1 million views. My complete workflow setup that takes you from zero to a full content library without touching a camera or microphone and the exact costs, timeframes and technical setup that is required to copy the system step-by-step starting today. So Manus have a brand new update where you can basically integrate Veo 3, generate AI videos like you can see right here. I'll play this in a second. And essentially with this, you can now generate longer clips. You"
+        }
+      },
+      {
+        "json": {
+          "id": "uncNMsNbVaqp",
+          "author_id": "5e1ddeb7-0189-49b3-8329-f665de5e1ca4",
+          "folder_id": "886mFiyU",
+          "name": "Comparing AI Video Generation Tools: Manus vs. GenSpark",
+          "created_at": "2025-06-10T22:31:09.721+00:00",
+          "virality_score": 78,
+          "virality_score_explanation": "The video compares popular AI video generation tools, which is a trending topic that appeals to tech enthusiasts and content creators. The speaker's personal preference adds a relatable touch, and the mention of TikTok and YouTube as platforms where similar content is thriving can attract viewers. However, the pacing and technical nature may limit broader appeal, preventing a perfect score.",
+          "publication_captions": {
+            "tiktok": "Manus vs. GenSpark: Which AI tool wins the video race? 🤖💥 #AIBattle #VideoMagic",
+            "youtube": "Manus vs. GenSpark: Which AI tool wins the video race? 🏁 Comment your fave! #AIShowdown",
+            "linkedin": "Manus or GenSpark? 🤔 Dive into AI video magic! Which tool do you trust? 🔍✨ #AIVideo",
+            "instagram": "Manus vs. GenSpark: Which AI wins? 🤔 Dive into the showdown! #AIBattle #VideoMagic"
+          },
+          "transcript_text": "You've got other agents that can do this, like GenSpark as well. Honestly, if I have a choice, I'll show you the outputs in a second. But I would say I still prefer GenSpark. But I want to show you, because I know a lot of people here use Manus and that sort of thing. I just find Manus is a little bit slower than GenSpark when it comes to generating outputs. But still, it's amazing that you can do this with 501. And you can see the process here, right? So it's like, right, Manas is gonna think about this first, then we're gonna get user approval, then we're gonna generate the videos, and then we're gonna deliver the final videos to the user, right? So it's generating the outputs here. Now you might be thinking, okay, isn't this just like AI slop or nobody's gonna watch this, et cetera? So what you can actually do is if you go on YouTube and actually TikTok as well is a good example of this, right? So if you go on TikTok, You can see here, some of these videos are absolutely blowing up."
+        }
+      }
+    ],
+    "Generated Shorts Clip": [
+      {
+        "json": {
+          "id": "46ced214-ed31-4310-bf3d-534302264087",
+          "status": "processing",
+          "src_url": null,
+          "estimated_ready_at": "2025-06-10T23:55:16.601Z",
+          "project_id": "jrUyFsEzVoqz",
+          "created_at": "2025-06-10T23:54:31.601Z",
+          "name": "Creating an Automated YouTube Video Empire with AI",
+          "author_id": "5e1ddeb7-0189-49b3-8329-f665de5e1ca4",
+          "folder_id": "886mFiyU",
+          "descriptions": null
+        }
+      },
+      {
+        "json": {
+          "id": "3ebd0e88-a5e9-45d7-ae46-7c94ec58beb8",
+          "status": "processing",
+          "src_url": null,
+          "estimated_ready_at": "2025-06-10T23:55:27.642Z",
+          "project_id": "uncNMsNbVaqp",
+          "created_at": "2025-06-10T23:54:31.642Z",
+          "name": "Comparing AI Video Generation Tools: Manus vs. GenSpark",
+          "author_id": "5e1ddeb7-0189-49b3-8329-f665de5e1ca4",
+          "folder_id": "886mFiyU",
+          "descriptions": null
+        }
+      }
+    ],
+    "Final Video URL": [
+      {
+        "json": {
+          "id": "46ced214-ed31-4310-bf3d-534302264087",
+          "status": "processing",
+          "src_url": null,
+          "estimated_ready_at": "2025-06-10T23:55:16.601Z",
+          "project_id": "jrUyFsEzVoqz",
+          "created_at": "2025-06-10T23:54:31.601Z",
+          "name": "Creating an Automated YouTube Video Empire with AI",
+          "author_id": "5e1ddeb7-0189-49b3-8329-f665de5e1ca4",
+          "folder_id": "886mFiyU",
+          "descriptions": null
+        }
+      },
+      {
+        "json": {
+          "id": "3ebd0e88-a5e9-45d7-ae46-7c94ec58beb8",
+          "status": "processing",
+          "src_url": null,
+          "estimated_ready_at": "2025-06-10T23:55:27.642Z",
+          "project_id": "uncNMsNbVaqp",
+          "created_at": "2025-06-10T23:54:31.642Z",
+          "name": "Comparing AI Video Generation Tools: Manus vs. GenSpark",
+          "author_id": "5e1ddeb7-0189-49b3-8329-f665de5e1ca4",
+          "folder_id": "886mFiyU",
+          "descriptions": null
+        }
+      }
+    ],
+    "Wait": [
+      {
+        "json": {
+          "id": "0998BlQPh3ftbpnw",
+          "type": "video-to-shorts",
+          "status": "processing",
+          "error_code": null,
+          "created_at": "2025-06-10T22:26:42.275Z",
+          "output_type": "folder",
+          "output_id": "886mFiyU"
+        }
+      }
+    ],
+    "Change Status in Sheets": [
+      {
+        "json": {
+          "IDEA": "Manus AI Agents",
+          "ID": "",
+          "PRODUCTION": "Shorts Created",
+          "row_number": ""
+        }
+      },
+      {
+        "json": {
+          "IDEA": "Manus AI Agents",
+          "ID": "",
+          "PRODUCTION": "Shorts Created",
+          "row_number": ""
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Videos": {
+      "main": [
+        [
+          {
+            "node": "Generate Shorts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Check Shorts Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Shorts Status": {
+      "main": [
+        [
+          {
+            "node": "Check Shorts Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Shorts": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shorts URL": {
+      "main": [
+        [
+          {
+            "node": "Generated Shorts Clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generated Shorts Clip": {
+      "main": [
+        [
+          {
+            "node": "Final Video URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Video URL": {
+      "main": [
+        [
+          {
+            "node": "Change Status in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Status in Sheets": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Shorts Status1": {
+      "main": [
+        [
+          {
+            "node": "Shorts URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3286e9cf-d8c7-41d0-b5be-6ab11290beb8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e299a1c9534d3df40876524706c82a0adb5dc6203538ef644e25b7d869a117f"
+  },
+  "id": "RwK5WyuB8k5IST3a",
+  "tags": []
+}
