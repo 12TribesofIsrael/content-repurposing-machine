@@ -215,13 +215,24 @@ if (window.angular) {
 | Twitter2 | @aibiblegospels | — |
 | YouTube | @tommylee-z3j | — |
 
-### Destination Type select values (per platform)
+### Destination Type select values (per platform — verified 2026-05-25)
 
-| Platform | Type options |
-|----------|--------------|
-| Facebook | `string:REELS` (Reels), `string:FEED` (Video), `string:STORIES` (Stories), `string:IMAGE` (Photos/carousels) |
-| Instagram | (Likely similar — REELS / FEED / STORIES / IMAGE — confirm before use) |
-| Others | TBD — inspect via `document.querySelectorAll('select[name="videoType"]')` after picking the destination |
+| Platform | Has Type select? | Options |
+|----------|------------------|---------|
+| Facebook | yes | `string:REELS` (Reels), `string:FEED` (Video), `string:STORIES` (Stories), `string:IMAGE` (Photos/carousels) |
+| Instagram | yes | `string:REELS` (Reels including Trial Reels), `string:STORIES` (Stories), `string:IMAGE` (Photos/carousels) — **NO FEED option** |
+| TikTok | no | n/a — TikTok has a single video format |
+| Twitter / X | no | n/a — Twitter has a single video format |
+| LinkedIn | (TBD — Stage 2 workflow 803458 only shows REELS-like options; recheck on a Stage 1 LinkedIn destination) | |
+| YouTube Shorts | TBD | |
+| Pinterest | TBD | |
+
+**⚠️ Critical finding: Instagram has no "Feed" destination type.** The PDF tree (`Turn-1-YouTube-Video-into-33-Pieces-of-Content.pdf`) lists "IG Feed" as a separate destination on both Branch 1 (Video) and Branch 3 (Audio). Repurpose.io does NOT support this as a distinct workflow target — IG Reels appear in the Feed automatically. This means:
+- **Branch 1**: "Vertical clip → IG Feed" cannot be a separate workflow. IG coverage = REELS + STORIES + IMAGE (3 destinations), not 4.
+- **Branch 3**: "Vertical audiogram → IG Feed" same issue.
+- **Real piece count** is 30, not 33 — the PDF marketing inflates by counting IG Feed twice (or treats Reels-in-Feed as a separate piece).
+
+Decision pending: update `../content-tree.md` to reflect actual 30-piece reality, OR keep 33 piece marketing language but document the IG-Reels-covers-Feed nuance.
 
 ### Facebook Page IDs (the `playlistItem` select for FB destination)
 
@@ -267,25 +278,33 @@ If you accept defaults and click **Enable Automation**, Repurpose.io will scan t
 
 These are the missing workflows from `../content-tree.md` for the Pattern B 2-stage flow on the testing account. The first one (`Google Drive → FB Page Full`) is built and named "Google Drive Video to Facebook Page (Full)" — workflow 805679.
 
-### Branch 1 (Video) — 4 more to build
+### Branch 1 (Video) — 3 more to build (was 4 — IG Feed dropped per finding above)
 
 | # | Source | Destination | Destination Type select value | Notes |
 |---|--------|-------------|-------------------------------|-------|
-| 2 | Google Drive | Facebook Group | (TBD — confirm select options) | Different from FB Page; needs FB Group connection (admin) |
-| 3 | Google Drive | Instagram Stories | `string:STORIES` (likely) | Instagram destination |
-| 4 | Google Drive | Instagram Feed | `string:FEED` (likely) | Instagram destination |
-| 5 | Google Drive | Google Drive backup | n/a | "Drive → Drive" workflow; different output folder |
+| 2 | Google Drive | Facebook Group | (TBD — confirm select options; may need separate Page select for the group) | Different from FB Page; needs FB Group connection (admin must have added the Group) |
+| 3 | Google Drive | Instagram Stories | `string:STORIES` (verified) | Instagram destination — second IG workflow alongside the existing IG Reels one |
+| 4 | Google Drive | Google Drive backup | n/a | "Drive → Drive" workflow; different output folder. Type select unknown — may not exist for Drive-to-Drive |
+| ~~5~~ | ~~Google Drive~~ | ~~Instagram Feed~~ | ~~not possible~~ | **Dropped** — IG has no FEED destination type. Covered by IG Reels (Reels appear in Feed automatically). |
 
-### Branch 3 (Audio) — 11 to build
+### Branch 3 (Audio) — 10 to build (was 11 — IG Feed audiogram dropped)
 
-For the audio branch, the source media type needs to be set to **audio** (`string:0`) in the first videoType select. Then each workflow targets a different destination:
+For the audio branch, the source Media Type needs to be set to **Audio** (`string:0`) in the first videoType select. The "Media Type" select with that option exists on all source-side workflows (verified on Stage 1 IG/TT/FB/Twitter workflows). Each workflow targets a different destination:
 
 | # | Output | Destination | Notes |
 |---|--------|-------------|-------|
-| 1 | Podcast episode | Spotify+Apple (via RSS) | Requires podcast RSS host (Buzzsprout/Anchor/Captivate) — external setup |
+| 1 | Podcast episode | Spotify+Apple (via RSS) | Requires podcast RSS host (Buzzsprout/Anchor/Captivate) — external setup before workflow can fire |
 | 2 | Audio backup | Google Drive (different folder) | |
-| 3 | Alexa flash briefing | Amazon Alexa | Requires Amazon Developer connection |
-| 4–11 | Vertical audiograms | IG Reels/Stories, IG Feed, TikTok, LinkedIn, Twitter, FB Page, YouTube Shorts, Pinterest | 8 audiogram workflows |
+| 3 | Alexa flash briefing | Amazon Alexa | Requires Amazon Developer connection (not currently in the account's 12 connections) |
+| 4 | Vertical audiogram | Instagram Reels | Type = `string:REELS` |
+| 5 | Vertical audiogram | Instagram Stories | Type = `string:STORIES` |
+| 6 | Vertical audiogram | TikTok | No Type select |
+| 7 | Vertical audiogram | LinkedIn | (TBD — Type unknown) |
+| 8 | Vertical audiogram | Twitter / X | No Type select |
+| 9 | Vertical audiogram | Facebook Page | Type = `string:FEED` (matches the FB Page Full workflow we built) |
+| 10 | Vertical audiogram | YouTube Shorts | (TBD — Type unknown) |
+| 11 | Vertical audiogram | Pinterest Idea Pin | (TBD — Type unknown) |
+| ~~12~~ | ~~Vertical audiogram~~ | ~~Instagram Feed~~ | **Dropped** — same IG-no-FEED issue as Branch 1 |
 
 ### Suggested batch script approach
 
