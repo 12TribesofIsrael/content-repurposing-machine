@@ -19,6 +19,7 @@ The service is sold in 3 tiers: $500 Starter / $800 Full Stack / $1,500 Enterpri
 | `setup-sop.md` | Step-by-step client setup guide (Phases 1–7) |
 | `repurpose-io-setup.md` | Repurpose.io-specific setup — account, plans, connections, both source patterns |
 | `text-layer/README.md` | Architecture spec for the Branch 2 Python + Modal text-generation script (build per client) |
+| `docs/repurpose-io-ui-automation.md` | Playbook for driving the Repurpose.io dashboard with Playwright — selectors, gotchas, batch-build plan |
 | `Turn-1-YouTube-Video-into-33-Pieces-of-Content (1).pdf` | Repurpose.io's official tree diagram (source of truth for `content-tree.md`) |
 
 ## What Needs to Be Built Per Client

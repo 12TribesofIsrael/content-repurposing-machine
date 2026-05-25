@@ -4,6 +4,7 @@ Setup notes, client-specific configuration, troubleshooting logs, and any refere
 
 ## What lives here
 
+- `repurpose-io-ui-automation.md` — playbook for driving the Repurpose.io dashboard with Playwright (selectors, gotchas, batch-build strategy for remaining workflows)
 - Client-specific brand voice / system-prompt overrides for the text layer
 - Per-client source-pattern decision (Pattern A or B from `setup-sop.md` Phase 2)
 - Platform API gotchas discovered during real setups
