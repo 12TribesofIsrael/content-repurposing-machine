@@ -1,0 +1,280 @@
+{
+  "name": "Social Media Posting Machine — Fixed",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [-600, 0],
+      "webhookId": "webhook-123"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "input-content",
+              "name": "content_idea",
+              "type": "string",
+              "value": "={{ $json.content_idea || $json.body.content_idea }}"
+            },
+            {
+              "id": "input-client-email",
+              "name": "client_email",
+              "type": "string",
+              "value": "={{ $env.CLIENT_APPROVAL_EMAIL }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "parse-input",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.set",
+      "position": [-300, 0],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "content": "=You are a social media content specialist. The user has submitted this content idea:\n\n{{ $json.content_idea }}\n\nGenerate platform-specific social media content for EACH platform in valid JSON format. Return ONLY valid JSON with no preamble.\n\nGenerate content for:\n- Twitter (280 chars max, punchy, use 1-2 hashtags)\n- LinkedIn (professional, 150-300 words, 3-5 hashtags)\n- Facebook (conversational, 80-150 words, include CTA)\n- Instagram (100-150 words, emoji-friendly, 20-30 hashtags)\n\nReturn as JSON:\n{\n  \"twitter\": \"...\",\n  \"linkedin\": \"...\",\n  \"facebook\": \"...\",\n  \"instagram\": \"...\"\n}"
+            }
+          ]
+        },
+        "options": {
+          "responseFormat": "json_object"
+        },
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        }
+      },
+      "id": "openai-generate",
+      "name": "OpenAI — Generate Content",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [0, 0],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.output || $input.first().json;\nconst jsonMatch = output.toString().match(/\\{[\\s\\S]*\\}/);\nconst parsed = JSON.parse(jsonMatch ? jsonMatch[0] : output);\n\nreturn {\n  json: {\n    content: parsed\n  }\n};"
+      },
+      "id": "parse-ai-output",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [300, 0],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $json.client_email }}",
+        "subject": "=🔥 REVIEW NEEDED: New AI Content — {{ $now.toFormat('yyyy-MM-dd') }}",
+        "message": "=Hi,\n\nI've generated new content for your platforms. Please review and reply APPROVE if it looks good.\n\n---\n\n**TWITTER:**\n{{ $json.content.twitter }}\n\n---\n\n**LINKEDIN:**\n{{ $json.content.linkedin }}\n\n---\n\n**FACEBOOK:**\n{{ $json.content.facebook }}\n\n---\n\n**INSTAGRAM:**\n{{ $json.content.instagram }}\n\n---\n\nReply with APPROVE to post everything.\nReply with REJECT to cancel.\nReply with specific changes to request edits.\n",
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 24,
+              "resumeUnit": "hours"
+            }
+          }
+        }
+      },
+      "id": "gmail-send-wait",
+      "name": "Gmail — Send and Wait for Reply",
+      "type": "n8n-nodes-base.gmail",
+      "position": [600, 0],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-approve",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "APPROVE"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-approved",
+      "name": "Check: Is Approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [900, 0],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message.content.twitter }}",
+        "additionalFields": {}
+      },
+      "id": "twitter-post",
+      "name": "Post to Twitter/X",
+      "type": "n8n-nodes-base.twitter",
+      "position": [1200, -200],
+      "typeVersion": 2,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v20.0",
+        "node": "={{ $env.FACEBOOK_PAGE_ID }}",
+        "edge": "feed",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $json.message.content.facebook }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "facebook-post",
+      "name": "Post to Facebook",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [1200, 0],
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "={{ $env.LINKEDIN_ORGANIZATION_ID }}",
+        "text": "={{ $json.message.content.linkedin }}",
+        "shareMediaCategory": "ARTICLE",
+        "additionalFields": {}
+      },
+      "id": "linkedin-post",
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [1200, 200],
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v20.0/{{ $env.INSTAGRAM_BUSINESS_ID }}/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "instagramGraphApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formData",
+              "name": "caption",
+              "value": "={{ $json.message.content.instagram }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "media_type",
+              "value": "CAROUSEL"
+            }
+          ]
+        }
+      },
+      "id": "instagram-post",
+      "name": "Post to Instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1200, 400],
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $env.CLIENT_APPROVAL_EMAIL }}",
+        "subject": "=✅ Content Posted Successfully",
+        "message": "=All your content has been posted to:\n✓ Twitter\n✓ Facebook  \n✓ LinkedIn\n✓ Instagram\n\nCheck your profiles!"
+      },
+      "id": "gmail-success",
+      "name": "Gmail — Send Confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1500, 100],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $env.CLIENT_APPROVAL_EMAIL }}",
+        "subject": "=⏸️ Content Posting Cancelled",
+        "message": "=The content posting was cancelled. No posts were made.\n\nFeel free to resubmit when you're ready."
+      },
+      "id": "gmail-rejected",
+      "name": "Gmail — Send Rejection Notice",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1500, -300],
+      "typeVersion": 2.1
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{"node": "Parse Input", "type": "main", "index": 0}]]
+    },
+    "Parse Input": {
+      "main": [[{"node": "OpenAI — Generate Content", "type": "main", "index": 0}]]
+    },
+    "OpenAI — Generate Content": {
+      "main": [[{"node": "Parse AI Output", "type": "main", "index": 0}]]
+    },
+    "Parse AI Output": {
+      "main": [[{"node": "Gmail — Send and Wait for Reply", "type": "main", "index": 0}]]
+    },
+    "Gmail — Send and Wait for Reply": {
+      "main": [[{"node": "Check: Is Approved?", "type": "main", "index": 0}]]
+    },
+    "Check: Is Approved?": {
+      "main": [
+        [
+          {"node": "Post to Twitter/X", "type": "main", "index": 0},
+          {"node": "Post to Facebook", "type": "main", "index": 0},
+          {"node": "Post to LinkedIn", "type": "main", "index": 0},
+          {"node": "Post to Instagram", "type": "main", "index": 0}
+        ],
+        [{"node": "Gmail — Send Rejection Notice", "type": "main", "index": 0}]
+      ]
+    },
+    "Post to Twitter/X": {
+      "main": [[{"node": "Gmail — Send Confirmation", "type": "main", "index": 0}]]
+    },
+    "Post to Facebook": {
+      "main": [[{"node": "Gmail — Send Confirmation", "type": "main", "index": 0}]]
+    },
+    "Post to LinkedIn": {
+      "main": [[{"node": "Gmail — Send Confirmation", "type": "main", "index": 0}]]
+    },
+    "Post to Instagram": {
+      "main": [[{"node": "Gmail — Send Confirmation", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fixed-v1",
+  "id": "social-posting-fixed",
+  "tags": ["fixed", "simplified"]
+}

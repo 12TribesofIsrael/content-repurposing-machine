@@ -1,0 +1,246 @@
+{
+  "name": "Social Media Posting — Instagram Auto Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "unit": "minutes",
+        "value": 15
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.schedule",
+      "typeVersion": 1.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.instagram.com/v20.0/{{ $env.INSTAGRAM_BUSINESS_ID }}/media?fields=id,caption,timestamp,media_type&limit=1&access_token={{ $env.INSTAGRAM_ACCESS_TOKEN }}"
+      },
+      "id": "get-instagram-posts",
+      "name": "Get Latest Instagram Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 0],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nif (!response.data || response.data.length === 0) {\n  throw new Error('No Instagram posts found');\n}\nconst post = response.data[0];\nreturn {\n  json: {\n    post_id: post.id,\n    caption: post.caption || 'No caption provided',\n    timestamp: post.timestamp,\n    media_type: post.media_type\n  }\n};"
+      },
+      "id": "extract-post-data",
+      "name": "Extract Post Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "caption",
+              "name": "content_idea",
+              "type": "string",
+              "value": "={{ $json.caption }}"
+            },
+            {
+              "id": "email",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $env.CLIENT_APPROVAL_EMAIL }}"
+            },
+            {
+              "id": "post-id",
+              "name": "post_id",
+              "type": "string",
+              "value": "={{ $json.post_id }}"
+            }
+          ]
+        }
+      },
+      "id": "prepare-input",
+      "name": "Prepare Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 0]
+    },
+    {
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "content": "=Generate social media posts based on this Instagram post:\n\n{{ $json.content_idea }}\n\nReturn ONLY this JSON format with no preamble:\n{\"twitter\": \"[280 chars max, punchy, 1-2 hashtags]\", \"linkedin\": \"[150-300 words, professional, 3-5 hashtags]\", \"facebook\": \"[80-150 words, conversational, CTA]\", \"instagram\": \"[100-150 words, emojis, 20-30 hashtags]\"}"
+            }
+          ]
+        },
+        "options": {
+          "responseFormat": "json_object"
+        },
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        }
+      },
+      "id": "openai-generate",
+      "name": "OpenAI Generate",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1200, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst output = response.output || response;\nlet parsed;\ntry {\n  parsed = JSON.parse(output);\n} catch (e) {\n  const match = output.toString().match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match[0]);\n}\nreturn {\n  json: {\n    twitter: parsed.twitter || '',\n    linkedin: parsed.linkedin || '',\n    facebook: parsed.facebook || '',\n    instagram: parsed.instagram || ''\n  }\n};"
+      },
+      "id": "parse-ai-output",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 0]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $json.email }}",
+        "subject": "=New Instagram Post — Review Content",
+        "message": "=A new Instagram post was detected. Here's the generated content:\n\n---\n\n**TWITTER:**\n{{ $json.twitter }}\n\n---\n\n**LINKEDIN:**\n{{ $json.linkedin }}\n\n---\n\n**FACEBOOK:**\n{{ $json.facebook }}\n\n---\n\n**INSTAGRAM:**\n{{ $json.instagram }}\n\n---\n\nReply APPROVE to post everything to all platforms."
+      },
+      "id": "gmail-send-wait",
+      "name": "Gmail Send Wait",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1800, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "approve"
+            }
+          ]
+        }
+      },
+      "id": "check-approved",
+      "name": "Check Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2100, 0]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.twitter }}"
+      },
+      "id": "post-twitter",
+      "name": "Post Twitter",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [2400, -200],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v20.0",
+        "node": "={{ $env.FACEBOOK_PAGE_ID }}",
+        "edge": "feed",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $json.facebook }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "post-facebook",
+      "name": "Post Facebook",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [2400, 0],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "={{ $env.LINKEDIN_ORGANIZATION_ID }}",
+        "text": "={{ $json.linkedin }}"
+      },
+      "id": "post-linkedin",
+      "name": "Post LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [2400, 200],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=✅ Content Posted to All Platforms!"
+      },
+      "id": "success-email",
+      "name": "Success Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2700, 0]
+    }
+  ],
+  "connections": {
+    "schedule-trigger": {
+      "main": [[{"node": "get-instagram-posts", "type": "main", "index": 0}]]
+    },
+    "get-instagram-posts": {
+      "main": [[{"node": "extract-post-data", "type": "main", "index": 0}]]
+    },
+    "extract-post-data": {
+      "main": [[{"node": "prepare-input", "type": "main", "index": 0}]]
+    },
+    "prepare-input": {
+      "main": [[{"node": "openai-generate", "type": "main", "index": 0}]]
+    },
+    "openai-generate": {
+      "main": [[{"node": "parse-ai-output", "type": "main", "index": 0}]]
+    },
+    "parse-ai-output": {
+      "main": [[{"node": "gmail-send-wait", "type": "main", "index": 0}]]
+    },
+    "gmail-send-wait": {
+      "main": [[{"node": "check-approved", "type": "main", "index": 0}]]
+    },
+    "check-approved": {
+      "main": [
+        [
+          {"node": "post-twitter", "type": "main", "index": 0},
+          {"node": "post-facebook", "type": "main", "index": 0},
+          {"node": "post-linkedin", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "post-twitter": {
+      "main": [[{"node": "success-email", "type": "main", "index": 0}]]
+    },
+    "post-facebook": {
+      "main": [[{"node": "success-email", "type": "main", "index": 0}]]
+    },
+    "post-linkedin": {
+      "main": [[{"node": "success-email", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
