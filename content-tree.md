@@ -2,11 +2,11 @@
 
 Source: Repurpose.io framework (adapted for BMB client delivery)
 
-One 60-second TikTok (or any short-form video) → 33 pieces of content.
+One 60-second TikTok (or any short-form video) → up to 22 pieces of content, all distributed through Repurpose.io.
 
 ---
 
-## Branch 1: Full Video (handled by Repurpose.io)
+## Branch 1: Full Video
 
 | Output | Platform | Tool | Notes |
 |--------|----------|------|-------|
@@ -25,29 +25,7 @@ One 60-second TikTok (or any short-form video) → 33 pieces of content.
 
 ---
 
-## Branch 2: Text (handled by n8n Social Media Posting Machine)
-
-AI extracts transcript from video → generates platform-optimized text content.
-
-| Output | Platform | Tool | Notes |
-|--------|----------|------|-------|
-| Blog post (500-800 words) | WordPress / Website | n8n + GPT-4o | SEO-optimized, embeds YouTube Short |
-| IG Text Post + Graphic | Instagram Feed | n8n + Canva API (optional) | Quote from video as graphic |
-| LinkedIn article | LinkedIn | n8n + GPT-4o | Expanded professional version |
-| Facebook text post | Facebook Page | n8n + GPT-4o | Conversational version |
-| Quote graphic | Facebook Page | n8n + image gen | Key insight pulled from video |
-| Quote graphic | LinkedIn | n8n + image gen | Professional framing |
-| Quote graphic | Instagram Reels | n8n + image gen | Animated or static |
-| Quote graphic | Instagram Stories | n8n + image gen | |
-| Quote graphic | Instagram Feed | n8n + image gen | |
-| Quote graphic | Pinterest Idea Pins | n8n + image gen | |
-| Quote graphic | Twitter/X | n8n + image gen | |
-
-**Total: 11 pieces from text**
-
----
-
-## Branch 3: Audio (handled by Repurpose.io)
+## Branch 2: Audio
 
 Repurpose.io extracts audio from the video → distributes as podcast-style content.
 
@@ -70,14 +48,13 @@ Repurpose.io extracts audio from the video → distributes as podcast-style cont
 
 ---
 
-## Grand Total: 33 pieces from 1 video
+## Grand Total: up to 22 pieces from 1 video
 
 | Branch | Tool | Pieces |
 |--------|------|--------|
 | Full Video | Repurpose.io | 10 |
-| Text | n8n + GPT-4o | 11 |
 | Audio | Repurpose.io | 12 |
-| **Total** | | **33** |
+| **Total** | | **22** |
 
 ---
 
@@ -86,18 +63,16 @@ Repurpose.io extracts audio from the video → distributes as podcast-style cont
 Offer clients a tiered setup:
 
 **Starter ($500 setup / $97/mo):**
-- Repurpose.io + 5 platforms (TikTok → YouTube Shorts, FB Page, IG Reels, LinkedIn, backup)
-- n8n text layer: 1 platform (LinkedIn or Facebook text posts)
+- Repurpose.io + 5 video destinations (TikTok → YouTube Shorts, FB Page, IG Reels, LinkedIn, Google Drive backup)
 - Best for: coaches just getting started with content
 
 **Full Stack ($800 setup / $197/mo):**
 - All 10 video destinations
-- Full n8n text layer (blog + 4 platforms)
 - Monthly content calendar review
-- Best for: established creators, consultants with multiple active platforms
+- Best for: established creators and consultants with multiple active platforms
 
 **Enterprise ($1,500 setup / $297/mo):**
-- All 33 pieces
-- Audiograms + podcast distribution
+- All 22 pieces — full video + audio branch
+- Podcast RSS setup + audiograms across every platform
 - Weekly review + optimization
-- Best for: high-volume content businesses
+- Best for: high-volume content businesses with (or willing to launch) a podcast

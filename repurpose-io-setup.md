@@ -121,14 +121,3 @@ Repurpose.io's caption field supports variables:
 
 ---
 
-## Step 7: The n8n Layer (AI Text Content)
-
-Repurpose.io handles video distribution. For AI-generated text content (captions, blog posts, LinkedIn articles from the video), we layer in the n8n **Social Media Posting Machine**:
-
-1. Import `workflow-social-posting.json` into n8n
-2. Configure the OpenAI node with client's API key
-3. Set trigger: manual (client pastes in content idea) or scheduled (weekly batch)
-4. Workflow outputs: platform-specific caption drafts → email for approval → posts to connected accounts
-5. This covers: Blog post from video transcript, LinkedIn article, email newsletter excerpt
-
-See `setup-sop.md` for the full n8n setup steps.
