@@ -80,6 +80,8 @@ Repurpose.io extracts audio natively from the source video.
 
 Repurpose.io's marketing rounds to "33" — the count varies depending on whether bundled destinations (Spotify+Apple, IG Reels+Stories, Drive+Dropbox) are counted as one or two. The tree above honors the PDF's official grouping.
 
+> **Note on Instagram Feed:** the PDF lists "IG Feed" as a separate destination on both Branch 1 and Branch 3. In practice, Repurpose.io does not support a distinct "Feed video" workflow target for Instagram — Reels appear in the Feed automatically. The IG Feed rows in the tables above describe coverage *via* IG Reels rather than a second workflow you'd build. See `docs/repurpose-io-ui-automation.md` for the technical detail.
+
 ---
 
 ## Starter Package vs. Full Package

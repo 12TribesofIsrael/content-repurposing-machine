@@ -223,11 +223,15 @@ if (window.angular) {
 | Instagram | yes | `string:REELS` (Reels including Trial Reels), `string:STORIES` (Stories), `string:IMAGE` (Photos/carousels) — **NO FEED option** |
 | TikTok | no | n/a — TikTok has a single video format |
 | Twitter / X | no | n/a — Twitter has a single video format |
-| LinkedIn | (TBD — Stage 2 workflow 803458 only shows REELS-like options; recheck on a Stage 1 LinkedIn destination) | |
-| YouTube Shorts | TBD | |
-| Pinterest | TBD | |
+| YouTube | yes | `string:SHORTS` (Shorts, default), `string:Video` (regular YouTube video) |
+| LinkedIn | (no Type select observed during create wizard with audio source — workflow created with default) | |
+| Pinterest | (no Type select observed during create wizard with audio source — workflow created with default; possibly Idea Pin only) | |
 
-**⚠️ Critical finding: Instagram has no "Feed" destination type.** The PDF tree (`Turn-1-YouTube-Video-into-33-Pieces-of-Content.pdf`) lists "IG Feed" as a separate destination on both Branch 1 (Video) and Branch 3 (Audio). Repurpose.io does NOT support this as a distinct workflow target — IG Reels appear in the Feed automatically. This means:
+**⚠️ Source media type changes the destinations grid.** When Media Type is set to Audio (`string:0`), the "Post to" grid adds Google Drive and Dropbox as destinations (not present in Video mode). Spotify/Apple/Alexa do NOT appear in either mode — those require external setup (RSS host for podcast, Amazon Developer connection for Alexa).
+
+**⚠️ Critical finding: Instagram has no "Feed" destination type.** The PDF tree (`Turn-1-YouTube-Video-into-33-Pieces-of-Content.pdf`) lists "IG Feed" as a separate destination on both Branch 1 (Video) and Branch 3 (Audio). Repurpose.io does NOT support this as a distinct workflow target — IG Reels appear in the Feed automatically.
+
+**⚠️ Critical finding: Facebook Group needs its own connection.** The FB Page select inside the create wizard only contains Pages, not Groups, even when the FB account is admin of multiple Groups. To target a Group, a separate "FB Group" connection must be added via the Connections page (admin must have added the Group there explicitly). This means:
 - **Branch 1**: "Vertical clip → IG Feed" cannot be a separate workflow. IG coverage = REELS + STORIES + IMAGE (3 destinations), not 4.
 - **Branch 3**: "Vertical audiogram → IG Feed" same issue.
 - **Real piece count** is 30, not 33 — the PDF marketing inflates by counting IG Feed twice (or treats Reels-in-Feed as a separate piece).
@@ -278,33 +282,34 @@ If you accept defaults and click **Enable Automation**, Repurpose.io will scan t
 
 These are the missing workflows from `../content-tree.md` for the Pattern B 2-stage flow on the testing account. The first one (`Google Drive → FB Page Full`) is built and named "Google Drive Video to Facebook Page (Full)" — workflow 805679.
 
-### Branch 1 (Video) — 3 more to build (was 4 — IG Feed dropped per finding above)
+### Branch 1 (Video) — completed / dropped
 
-| # | Source | Destination | Destination Type select value | Notes |
-|---|--------|-------------|-------------------------------|-------|
-| 2 | Google Drive | Facebook Group | (TBD — confirm select options; may need separate Page select for the group) | Different from FB Page; needs FB Group connection (admin must have added the Group) |
-| 3 | Google Drive | Instagram Stories | `string:STORIES` (verified) | Instagram destination — second IG workflow alongside the existing IG Reels one |
-| 4 | Google Drive | Google Drive backup | n/a | "Drive → Drive" workflow; different output folder. Type select unknown — may not exist for Drive-to-Drive |
-| ~~5~~ | ~~Google Drive~~ | ~~Instagram Feed~~ | ~~not possible~~ | **Dropped** — IG has no FEED destination type. Covered by IG Reels (Reels appear in Feed automatically). |
+| # | Source | Destination | Status | Notes |
+|---|--------|-------------|--------|-------|
+| 1 | Google Drive | Facebook Page (Full Video) | ✅ Built (805679, Active) | The proof-of-concept build |
+| 2 | Google Drive | Instagram Stories | ✅ Built (805728, paused) | Type=STORIES |
+| ~~3~~ | ~~Google Drive~~ | ~~Facebook Group~~ | **Blocked** | No Group connection in account (FB Page select only contains Pages) |
+| ~~4~~ | ~~Google Drive~~ | ~~Google Drive backup~~ | **Blocked in Video mode** | Drive not in destinations grid in Video mode — but IS in Audio mode (see Branch 3) |
+| ~~5~~ | ~~Google Drive~~ | ~~Instagram Feed~~ | **Dropped** | IG has no FEED destination type |
 
-### Branch 3 (Audio) — 10 to build (was 11 — IG Feed audiogram dropped)
+### Branch 3 (Audio) — 8 built, 2 blocked, 1 optional
 
-For the audio branch, the source Media Type needs to be set to **Audio** (`string:0`) in the first videoType select. The "Media Type" select with that option exists on all source-side workflows (verified on Stage 1 IG/TT/FB/Twitter workflows). Each workflow targets a different destination:
+Source Media Type = Audio (`string:0`). In audio mode, the destinations grid expands to include Google Drive and Dropbox. Spotify/Apple/Alexa still don't appear.
 
-| # | Output | Destination | Notes |
-|---|--------|-------------|-------|
-| 1 | Podcast episode | Spotify+Apple (via RSS) | Requires podcast RSS host (Buzzsprout/Anchor/Captivate) — external setup before workflow can fire |
-| 2 | Audio backup | Google Drive (different folder) | |
-| 3 | Alexa flash briefing | Amazon Alexa | Requires Amazon Developer connection (not currently in the account's 12 connections) |
-| 4 | Vertical audiogram | Instagram Reels | Type = `string:REELS` |
-| 5 | Vertical audiogram | Instagram Stories | Type = `string:STORIES` |
-| 6 | Vertical audiogram | TikTok | No Type select |
-| 7 | Vertical audiogram | LinkedIn | (TBD — Type unknown) |
-| 8 | Vertical audiogram | Twitter / X | No Type select |
-| 9 | Vertical audiogram | Facebook Page | Type = `string:FEED` (matches the FB Page Full workflow we built) |
-| 10 | Vertical audiogram | YouTube Shorts | (TBD — Type unknown) |
-| 11 | Vertical audiogram | Pinterest Idea Pin | (TBD — Type unknown) |
-| ~~12~~ | ~~Vertical audiogram~~ | ~~Instagram Feed~~ | **Dropped** — same IG-no-FEED issue as Branch 1 |
+| # | Output | Destination | Status | Workflow ID |
+|---|--------|-------------|--------|-------------|
+| 1 | Vertical audiogram | Facebook Page (Video) | ✅ Built (paused) | 805737 — Type=FEED |
+| 2 | Vertical audiogram | Instagram Reels | ✅ Built (paused) | 805741 — Type=REELS |
+| 3 | Vertical audiogram | Instagram Stories | ✅ Built (paused) | 805744 — Type=STORIES |
+| 4 | Vertical audiogram | TikTok | ✅ Built (paused) | 805745 — no Type select |
+| 5 | Vertical audiogram | LinkedIn | ✅ Built (paused) | 805750 — default Type |
+| 6 | Vertical audiogram | Twitter / X | ✅ Built (paused) | 805752 — no Type select |
+| 7 | Vertical audiogram | YouTube Shorts | ✅ Built (paused) | 805756 — Type=SHORTS (default) |
+| 8 | Vertical audiogram | Pinterest | ✅ Built (paused) | 805759 — default Type |
+| 9 | Audio backup | Google Drive (different folder) | ⏸️ Optional / not built this session | Drive shows in audio destinations grid; not yet attempted |
+| ~~10~~ | ~~Podcast episode~~ | ~~Spotify + Apple (via RSS)~~ | **Blocked** | Needs RSS host (Buzzsprout/Anchor/Captivate) external setup before workflow becomes possible |
+| ~~11~~ | ~~Alexa flash briefing~~ | ~~Amazon Alexa~~ | **Blocked** | Amazon Developer connection not in account |
+| ~~12~~ | ~~Vertical audiogram~~ | ~~Instagram Feed~~ | **Dropped** | Same IG-no-FEED issue as Branch 1 |
 
 ### Suggested batch script approach
 
@@ -341,6 +346,9 @@ Things that went wrong on the way to 805679 — keep handy for the next build:
 10. **Take screenshots between every key transition.** When something fails silently, the screenshot tells you what state you're actually in.
 11. **The dashboard pops announcement modals periodically.** Dismiss with `.close` button find, or just navigate past — the modals don't block the URL navigation.
 12. **For destructive operations (Delete) — always do a separate diagnostic run first** to inspect the confirm modal's exact button text and structure. The labels look obvious but real DOM may not match expectations.
+13. **FB Page select only lists Pages, not Groups.** Even when the connected FB account is admin of multiple Groups. To target a Group, a separate "FB Group" connection must be added via the Connections page.
+14. **Audio Media Type expands the destinations grid.** Setting `videoType=string:0` adds Google Drive and Dropbox as destinations. Useful for audio backup workflows that aren't possible in video mode.
+15. **"Execution context destroyed" error after NRN button click is benign.** The button click triggers a navigation to `/`, which invalidates Playwright's evaluate context — but the workflow is already persisted before the navigation fires. Ignore the error; check the workflow list to verify the new ID appeared.
 
 ---
 
