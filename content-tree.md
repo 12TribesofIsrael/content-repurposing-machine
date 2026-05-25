@@ -1,60 +1,84 @@
 # Content Repurposing Tree — Distribution Map
 
-Source: Repurpose.io framework (adapted for BMB client delivery)
+Source: official Repurpose.io infographic — `Turn-1-YouTube-Video-into-33-Pieces-of-Content (1).pdf`.
 
-One 60-second TikTok (or any short-form video) → up to 22 pieces of content, all distributed through Repurpose.io.
+One YouTube long-form video → up to **33 pieces of content** across three branches.
 
 ---
 
-## Branch 1: Full Video
+## Branch 1: Video (11 pieces) — Repurpose.io
+
+| Output | Source clip | Platform | Tool | Notes |
+|--------|-------------|----------|------|-------|
+| Full video | Full | Facebook Page | Repurpose.io | |
+| Full video | Full | Facebook Group | Repurpose.io | |
+| Full video backup | Full | Google Drive / Dropbox | Repurpose.io | Archive copy |
+| Vertical clip | 60s | Instagram Reels / Stories | Repurpose.io | Auto-clipped via Repurpose.io's clip feature |
+| Vertical clip | 60s | Instagram Feed | Repurpose.io | Square crop |
+| Vertical clip | 60s | TikTok | Repurpose.io | |
+| Vertical clip | 60s | Twitter / X | Repurpose.io | |
+| Vertical clip | 60s | LinkedIn | Repurpose.io | Professional caption layer |
+| Vertical clip | 60s | YouTube Shorts | Repurpose.io | Watermark removed automatically |
+| Vertical clip | 60s | Pinterest Idea Pin | Repurpose.io | |
+| Vertical clip | 60s | Facebook Page | Repurpose.io | Short-form version on the page |
+
+**Total: 11 pieces**
+
+---
+
+## Branch 2: Text (10 pieces) — Python + Modal + Claude/OpenAI
+
+A per-client Python script (deployed to Modal) pulls the video transcript, calls an LLM, and either posts directly or queues for client approval. See `text-layer/README.md` for the architecture.
 
 | Output | Platform | Tool | Notes |
 |--------|----------|------|-------|
-| Short video | YouTube Shorts | Repurpose.io | Watermark removed automatically |
-| Short video | Facebook Page | Repurpose.io | Original caption + branded hashtags |
-| Short video | Facebook Group | Repurpose.io | Community-specific caption |
-| Short video | LinkedIn | Repurpose.io | Professional caption layer |
-| Short video | Instagram Reels | Repurpose.io | |
-| Short video | Instagram Stories | Repurpose.io | Auto-cropped to Stories format |
-| Short video | Instagram Feed | Repurpose.io | Square crop |
-| Short video | Pinterest Idea Pins | Repurpose.io | |
-| Short video | Twitter/X | Repurpose.io | |
-| Short video backup | Google Drive / Dropbox | Repurpose.io | Archive copy |
+| Blog post (500–800 words) with YouTube embed | WordPress / Website | Python + Claude/OpenAI | SEO-optimized, embeds the source YouTube video |
+| Summarized text post (~2200 chars) | Instagram Feed | Python + Claude/OpenAI | Conversational, emoji-friendly, plus featured image |
+| Summarized text post | Facebook Page | Python + Claude/OpenAI | Question-based to drive comments |
+| Summarized text post | LinkedIn | Python + Claude/OpenAI | Professional insight angle |
+| Quote graphic | Twitter / X | Python + Claude/OpenAI + Canva/Bannerbear | Key insight pulled from video |
+| Quote graphic | Facebook Page | Python + Claude/OpenAI + Canva/Bannerbear | |
+| Quote graphic | LinkedIn | Python + Claude/OpenAI + Canva/Bannerbear | Professional framing |
+| Quote graphic | Instagram Feed | Python + Claude/OpenAI + Canva/Bannerbear | |
+| Quote graphic | Instagram Reels / Stories | Python + Claude/OpenAI + Canva/Bannerbear | Static or animated |
+| Quote graphic | Pinterest Idea Pin | Python + Claude/OpenAI + Canva/Bannerbear | |
 
-**Total: 10 pieces from full video**
-
----
-
-## Branch 2: Audio
-
-Repurpose.io extracts audio from the video → distributes as podcast-style content.
-
-| Output | Platform | Tool | Notes |
-|--------|----------|------|-------|
-| Podcast episode | Spotify | Repurpose.io | Requires podcast RSS setup |
-| Podcast episode | Apple Podcasts | Repurpose.io | Same RSS feed |
-| Alexa Skill audio | Amazon Alexa | Repurpose.io | Flash briefing format |
-| Audiogram | YouTube Shorts | Repurpose.io | Audio waveform video |
-| Audiogram | Facebook Page | Repurpose.io | |
-| Audiogram | Facebook Group | Repurpose.io | |
-| Audiogram | LinkedIn | Repurpose.io | |
-| Audiogram | Instagram Reels | Repurpose.io | |
-| Audiogram | Instagram Stories | Repurpose.io | |
-| Audiogram | Instagram Feed | Repurpose.io | |
-| Audiogram | Pinterest Idea Pins | Repurpose.io | |
-| Audiogram | Twitter/X | Repurpose.io | |
-
-**Total: 12 pieces from audio**
+**Total: 10 pieces**
 
 ---
 
-## Grand Total: up to 22 pieces from 1 video
+## Branch 3: Audio (11 pieces) — Repurpose.io
+
+Repurpose.io extracts audio natively from the source video.
+
+| Output | Source | Platform | Tool | Notes |
+|--------|--------|----------|------|-------|
+| Podcast episode | Full audio | Spotify + Apple Podcasts | Repurpose.io | Single RSS feed serves both (Buzzsprout, Anchor, Captivate as host) |
+| Audio backup | Full audio | Google Drive / Dropbox | Repurpose.io | Archive copy |
+| Alexa Skill audio | 60s clip | Amazon Alexa | Repurpose.io | Flash briefing format |
+| Vertical audiogram | 60s clip | Instagram Reels / Stories | Repurpose.io | Waveform-on-image video |
+| Vertical audiogram | 60s clip | Instagram Feed | Repurpose.io | |
+| Vertical audiogram | 60s clip | TikTok | Repurpose.io | |
+| Vertical audiogram | 60s clip | LinkedIn | Repurpose.io | |
+| Vertical audiogram | 60s clip | Twitter / X | Repurpose.io | |
+| Vertical audiogram | 60s clip | Facebook Page | Repurpose.io | |
+| Vertical audiogram | 60s clip | YouTube Shorts | Repurpose.io | |
+| Vertical audiogram | 60s clip | Pinterest Idea Pin | Repurpose.io | |
+
+**Total: 11 pieces**
+
+---
+
+## Grand Total
 
 | Branch | Tool | Pieces |
 |--------|------|--------|
-| Full Video | Repurpose.io | 10 |
-| Audio | Repurpose.io | 12 |
-| **Total** | | **22** |
+| 1. Video | Repurpose.io | 11 |
+| 2. Text | Python + Modal + Claude/OpenAI | 10 |
+| 3. Audio | Repurpose.io | 11 |
+| **Total** | | **32** |
+
+Repurpose.io's marketing rounds to "33" — the count varies depending on whether bundled destinations (Spotify+Apple, IG Reels+Stories, Drive+Dropbox) are counted as one or two. The tree above honors the PDF's official grouping.
 
 ---
 
@@ -63,16 +87,18 @@ Repurpose.io extracts audio from the video → distributes as podcast-style cont
 Offer clients a tiered setup:
 
 **Starter ($500 setup / $97/mo):**
-- Repurpose.io + 5 video destinations (TikTok → YouTube Shorts, FB Page, IG Reels, LinkedIn, Google Drive backup)
+- Repurpose.io + Branch 1 only — 5–11 video destinations of the client's choosing
 - Best for: coaches just getting started with content
 
 **Full Stack ($800 setup / $197/mo):**
-- All 10 video destinations
+- Repurpose.io + Branches 1 and 3 — all 22 video + audio pieces
+- Podcast RSS setup, audiograms across every platform
 - Monthly content calendar review
-- Best for: established creators and consultants with multiple active platforms
+- Best for: established creators, consultants, B2B with podcast appetite
 
 **Enterprise ($1,500 setup / $297/mo):**
-- All 22 pieces — full video + audio branch
-- Podcast RSS setup + audiograms across every platform
-- Weekly review + optimization
-- Best for: high-volume content businesses with (or willing to launch) a podcast
+- All 33 pieces — adds the Python + Modal text layer (Branch 2)
+- Custom Claude/OpenAI prompt tuned to client's brand voice
+- Quote-graphic template designed in Canva (or Bannerbear), then rendered programmatically
+- Weekly review + prompt optimization
+- Best for: high-volume content businesses, agencies, B2B coaches who need blog SEO
