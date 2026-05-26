@@ -306,7 +306,7 @@ Source Media Type = Audio (`string:0`). In audio mode, the destinations grid exp
 | 6 | Vertical audiogram | Twitter / X | ✅ Built (paused) | 805752 — no Type select |
 | 7 | Vertical audiogram | YouTube Shorts | ✅ Built (paused) | 805756 — Type=SHORTS (default) |
 | 8 | Vertical audiogram | Pinterest | ✅ Built (paused) | 805759 — default Type |
-| 9 | Audio backup | Google Drive (different folder) | ⏸️ Optional / not built this session | Drive shows in audio destinations grid; not yet attempted |
+| 9 | Audio backup | Google Drive (different folder) | ✅ Built (paused) | 805801 — **categorized as "Backup" workflow type** (separate from regular "Auto Publish" workflows). Drive→Drive workflows appear on the workflows list with a "Backup" badge, not the usual Auto Publish toggle. |
 | ~~10~~ | ~~Podcast episode~~ | ~~Spotify + Apple (via RSS)~~ | **Blocked** | Needs RSS host (Buzzsprout/Anchor/Captivate) external setup before workflow becomes possible |
 | ~~11~~ | ~~Alexa flash briefing~~ | ~~Amazon Alexa~~ | **Blocked** | Amazon Developer connection not in account |
 | ~~12~~ | ~~Vertical audiogram~~ | ~~Instagram Feed~~ | **Dropped** | Same IG-no-FEED issue as Branch 1 |
@@ -349,6 +349,7 @@ Things that went wrong on the way to 805679 — keep handy for the next build:
 13. **FB Page select only lists Pages, not Groups.** Even when the connected FB account is admin of multiple Groups. To target a Group, a separate "FB Group" connection must be added via the Connections page.
 14. **Audio Media Type expands the destinations grid.** Setting `videoType=string:0` adds Google Drive and Dropbox as destinations. Useful for audio backup workflows that aren't possible in video mode.
 15. **"Execution context destroyed" error after NRN button click is benign.** The button click triggers a navigation to `/`, which invalidates Playwright's evaluate context — but the workflow is already persisted before the navigation fires. Ignore the error; check the workflow list to verify the new ID appeared.
+16. **Drive→Drive workflows are a separate "Backup" type.** When both source and destination are Google Drive (or Dropbox), Repurpose.io classifies the workflow as a Backup. It appears on the workflows list with a "Backup" badge instead of the usual "Auto Publish" toggle, and likely uses the `/createBackups` flow if accessed via the sidebar. The schedule modal does NOT appear for these — the workflow is persisted as soon as both sides are configured, and the Continue button stays disabled (because a destination folder needs to be picked, even though labeled "optional").
 
 ---
 
