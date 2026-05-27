@@ -2,7 +2,7 @@
 
 Python + Modal script that generates the 10 text-and-graphic pieces of the content tree (Branch 2 in `../content-tree.md`).
 
-**Status:** Architecture spec only — not yet built. Built per-client because brand-voice prompts, hashtag lists, and posting credentials are client-specific.
+**Status:** Template ready — see [`client-template.py`](client-template.py). Per-client deploy: copy → fill the CLIENT CONFIG block at the top → wire credentials into a Modal Secret → `modal deploy`. The script itself is generic; only the brand-voice prompt, hashtags, approval email, and credentials change per client.
 
 ## What this layer produces
 
@@ -51,24 +51,62 @@ YouTube URL (manual paste OR scheduled trigger)
     - OR queue via Buffer/Metricool API (single integration covers all)
 ```
 
-## Deployment
+## Quick start (per new Enterprise client)
 
 ```bash
-modal deploy text-layer/client-<name>.py
+cd content-repurposing-machine/text-layer
+
+# 1. Copy the template
+cp client-template.py client-<name>.py
+
+# 2. Edit the CLIENT CONFIG block at the top of client-<name>.py:
+#    - CLIENT_NAME, BRAND_COLOR, APPROVAL_EMAIL
+#    - BRAND_VOICE (paste 3 example captions + voice notes)
+#    - HASHTAGS per platform
+#    - PUBLISH_TARGETS set (remove any platforms you don't want)
+
+# 3. Fill in .env from .env.example, then load into a Modal Secret
+cp .env.example .env
+# ...edit .env...
+modal secret create content-<name>-secrets --from-dotenv .env
+rm .env  # don't leave credentials on disk
+
+# 4. Deploy
+modal deploy client-<name>.py
+
+# 5. Copy the printed webhook URL into MODAL_PUBLIC_URL in the Secret,
+#    then redeploy once so the approval-email link points at it.
+
+# 6. Wire the webhook into a Google Form (manual) or scheduled function (batch).
 ```
 
-Modal returns a webhook URL. Wire it to:
+Manual smoke test before handing off:
+
+```bash
+modal run client-<name>.py --youtube-url=https://youtu.be/<short test video>
+```
+
+Watch Modal logs — you should see all 5 stages fire and an approval email
+land at APPROVAL_EMAIL with 6 inline quote graphics. Click the link → check
+the deployed platforms for the posts.
+
+## Triggers
+
+The webhook accepts `POST {"youtube_url": "..."}` and returns
+`{"status": "drafts emailed", "token": "..."}`. Wire it to:
 - A Google Form (manual mode — client pastes YouTube URL, form triggers webhook), OR
-- A Modal scheduled function (batch mode — runs e.g. Monday 9am, pulls from a content-ideas Google Sheet)
+- The included `weekly_batch` scheduled function (cron `0 9 * * 1` — fill in
+  `_read_pending_urls()` to pull from your source: Google Sheet, Notion DB, Airtable).
 
 See `../setup-sop.md` Phase 4 for the full deployment SOP.
 
-## Credentials required (per client)
+## Credentials
 
-- **Anthropic API key** (Claude) OR **OpenAI API key**
-- **WordPress application password** (if blog output enabled)
-- **Canva API key** OR **Bannerbear API key** (for quote-graphic rendering)
-- **Per-platform posting credentials** — either OAuth tokens or a scheduler API key (Buffer/Metricool covers multiple platforms with one key)
+Full list with format and provenance in [`.env.example`](.env.example).
+Loaded into a Modal Secret named `content-<client-name>-secrets`.
+Anything you omit → that platform is skipped at publish time (logged, not
+fatal), so day-one deploys can hit just one or two platforms and add the
+rest over time.
 
 ## Why Python + Modal
 
